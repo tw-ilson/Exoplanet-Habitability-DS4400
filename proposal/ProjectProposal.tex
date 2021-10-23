@@ -1,0 +1,65 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\setlength{\parindent}{15px}
+
+\title{Exoplanet Habitability Analysis Proposal}
+
+\author{Tom Wilson, Ben Irving}
+
+\date{10 - 22 - 2021}
+
+\begin{document}
+
+\maketitle
+
+\abstract
+The purpose of the following analysis is to discern patterns in the collected Kepler data currently available on confirmed exoplanets, to formulate a better understanding of planetary conditions and how they might correlate to one another. The object would be to gain a new perspective on how these conditions might lead to environments suitable for life, and other important physical processes. 
+\section{Introduction}
+\paragraph*{}
+
+ \indent The first exoplanets were confirmed in 1992, following the discovery made by Aleksander Wolszczan and Dale Frail. Since then, over 3600 planets have been formalized by various observatories and telescopes throughout Space. The study of these planetary bodies becomes increasingly relevant, as humanity stands on the edge entering the cosmic arena in full. As such, the study of conditions on other planets will help inform humanity of ways in which more local environments may evolve, on Earth and other bodies in the Solar System. 
+\\
+\indent The field is new, with the first exoplanet being identified less than 30 years ago. As such, there I very little known about how planets emerge in other areas of the universe, and how their physical properties develop with respect to their stellar bodies. \\
+\indent NASA Space Telescopes like the Kepler and recently retired Spitzer track large amounts of relevant information about the gravitational properties, light \& wave effects, and other common metrics used to study and classify the hidden stellar objects. Much of this information is available to us free of cost thanks to the wonders of the internet.
+\section{Proposed Project}
+4 classes: 
+Not habitable | Semi-Habitable | Habitable | Superhabitable*
+
+(possible characteristics to classify by: gravity, planetary density, stellar properties 
+(any possible atmospheric metrics)
+(age, size, orbit))
+
+Key Factors about the exoplanet's data can be correlated with one another using regressions via Gradient descent
+
+We will limit our analysis to only data corresponding to readings from \emph{confirmed} planets. This will help to keep the data more consistent and provide more relevance and reliability to our findings.
+
+Initial approach may be to establish factors of high covariance in order to rank factors in terms of their correlation with feature values which we recognize to be conducive (or not) to habitability on our mother Earth and our surrounding planets. Habitability classifications should be based on relative error quotient between exoplanet conditions and Earth conditions. More statistical analysis will follow in order to determine the appropriate classification model. Much depends on how much  features will generalize.
+
+Key among our considerations will be spectroscopy information (wavelengths of light passing through planetary atmosphere) obtained as the planet makes a 'transit' of its start as it passes into view. This information helps scientists reason about chemical makeup and density of extrasolar planetary atmospheres.
+\\
+\indent We plan to regress on atmospheric conditions, stellar density, stellar age, orbit information, etc to create a model which can accurately predict planetary density. Planetary statistics, in terms of long range observations, are the hardest to come by, as most of them are observed as shadows in front of stars. Thus, finding any relevant patterns pertaining to planetary information would be fascinating. \\
+\indent Furthermore, we would regress on available planetary/stellar data, to find average temperature, an extremely important characteristic when it comes to identifying environments suitable to life. 
+\\
+
+
+*Becuase it is perhaps anthropocentric and naiive to consider habitability a function of similarity to Earth, other factors may be included in a special class of planets (though an unsupervised approach may fit this task better). \\
+\indent As a side pursuit, we would like to train a neural network able to build ideal planetary bodies ("super habitable" environments) by listing characteristics based on stellar properties. Given a system, we would build an "ideal" planet, in terms of distance from the star and other such aspects.
+
+\section{Sources}
+
+\begin{itemize}
+\item[{\bf 1.)}] \textbf{ NASA Exoplanet archive} \\
+\emph{https://exoplanetarchive.ipac.caltech.edu/docs/data.html}
+\begin{itemize}
+\item Planetary System Data
+\item Transmission \& Emission Spectroscopy
+\item Microlensing (Gravitational) Data
+\item Direct Imaging Data
+\end{itemize}
+\item[{\bf 2.)}]\textbf{Astropy/Astroquery}\\
+\emph{https://astroquery.readthedocs.io/en/v0.3.9/sha/sha.html}
+\end{itemize}
+
+\end{document}
