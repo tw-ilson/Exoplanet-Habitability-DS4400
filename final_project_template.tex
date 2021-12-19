@@ -19,8 +19,9 @@
 
 \vspace{2mm}
 \section{Introduction}
-At the dawn of the Space Age, humanity looks to the skies more than ever. What lies above now seems closer some how, particularly with the deployment of the Tess and Kepler space telescopes, among others, by NASA. These satellites were launched with the directive of finding Earth-like planets amongst the stars. To no surprise, this search has proved difficult. Obviously, there is no data pertaining to extraterrestrial life. Thus, when thinking about the viability of extraterrestrial habitats, we instead must use conjecture based on Earth-based species, in analyzing their structures, the history of their emergence, and, most importantly, the planetary conditions which allowed life to blossom in the first place.\\
-\> Through the intense examination of terrestrial life, researchers have been able to make preliminary analyses of how certain observable planetary features lend themselves to the emergence of life. The primary factor seems to be the existence of liquid water. In terms of observable characteristics that lend themselves to this phenomena, researchers have determined an assortment of observable features that are vital. Interestingly, most of the characteristics are dependent on one another, as they all represent portions of the complex, dynamic systems that make up these worlds. For instance, the stellar mass is directly correlated to the stellar luminosity, for the magnitude of the energy output from a star can be inferred by the amount of "fuel" (in the form of hydrogen and helium) the star has left to carry out fusion. Many relationships remain less clear. (include a less clear relationship here)
+At the dawn of the Space Age, humanity looks to the skies more than ever. What lies above now seems closer some how, particularly with the deployment of the Tess and Kepler space telescopes, among others, by NASA. These satellites were launched with the directive of finding Earth-like planets amongst the stars. To no surprise, this search has proved difficult. Obviously, there is no data pertaining to extraterrestrial life. Thus, when thinking about the viability of extraterrestrial habitats, we instead must use conjecture based on Earth-based species, in analyzing their structures, the history of their emergence, and, most importantly, the planetary conditions which allowed life to blossom in the first place \cite{Zeiler}.\\
+\> Through the intense examination of terrestrial life, researchers have been able to make preliminary analyses of how certain observable planetary features lend themselves to the emergence of life. The primary factor seems to be the existence of liquid water \cite{Zeiler}. In terms of observable characteristics that lend themselves to this phenomena, researchers have determined an assortment of observable features that are vital. Interestingly, most of the characteristics are dependent on one another, as they all represent portions of the complex, dynamic systems that make up these worlds \cite{Zeiler}. For instance, the stellar mass is directly correlated to the stellar luminosity, for the magnitude of the energy output from a star can be inferred by the amount of "fuel" (in the form of hydrogen and helium) the star has left to carry out fusion. \cite{Danchi1} Many relationships remain less clear.
+\\
 \\
 The purpose of this project is to find statistical relationships between disparate planetary features. Our hope is for our model to extend to future planetary candidates.
 
@@ -39,11 +40,63 @@ Because we want to discern the best hyper-plane to separate out this very small 
 
 
 \subsection{Feed Forward Classifier Network (Multi Layer Perceptron)}
-We employ a Feed-Forward Neural Network, performing optimization with both a model with a single hidden layer and a model with three hidden layers. We use a ReLU activation for the hidden layers, and a sigmoid function for the final classification step. We optimize the cross-entropy loss over the network to acheive a 
+We employ a Feed-Forward Neural Network, performing optimization with both a model with a single hidden layer and a model with three hidden layers. We use a ReLU activation for the hidden layers, and a sigmoid function for the final classification step. 
+\\ 
+Our original intention was to employ the use of the cross entropy loss function, in order to optimize the weights in the network over our iterations. The Pytorch API provides built in functionality to execute this Cross Entropy Loss, which takes the form of
+\\
+\\
+\begin{center}
+$\ell(x, y) = \begin{cases}
+              \sum_{n=1}^N \frac{1}{\sum_{n=1}^N w_{y_n} \cdot \mathbb{1}\{y_n \not= \text{ignore\_index}\}} l_n, &
+               \text{if reduction} = \text{`mean';}\\
+                \sum_{n=1}^N l_n,  &
+                \text{if reduction} = \text{`sum'.}
+            \end{cases}$
+\end{center}
+\\
+\\
+Here, x can be described as the input variable, y the target, w is the weight, and c is the number of classes. N spans the mini-batch dimension, which we did not utilize for the training of our network.
+\\
+The project is a variation of the common "imbalanced classification" problem. We first chose to try class-weighting, using a basic rule where the weight of the largest class served as the numerator for our weights, and the weight of class C served as the denominator for class C. 
+\\
+\\
+Due to the irregularity in our data, we also chose to employ the ADADELTA optimizer, with the aim of dynamically altering our learning rate according to first order information. The hyper parameters, in the scope of this problem, were hard to nail down, due to a lack of positive samples. As such, we did not want our learning rate dependent on these values. 
+\\
+\\
+\\
+\\
+\begin{aligned}
+            &\rule{110mm}{0.4pt}                                                                 \\
+            &\textbf{input}      : \gamma \text{ (lr)}, \: \theta_0 \text{ (params)},
+                \: f(\theta) \text{ (objective)}, \: \rho \text{ (decay)},
+                \: \lambda \text{ (weight decay)}                                                \\
+            &\textbf{initialize} :  v_0  \leftarrow 0 \: \text{ (square avg)},
+                \: u_0 \leftarrow 0 \: \text{ (accumulate variables)}                     \\[-1.ex]
+            &\rule{110mm}{0.4pt}                                                                 \\
+            &\textbf{for} \: t=1 \: \textbf{to} \: \ldots \: \textbf{do}                         \\
+            &\hspace{5mm}g_t           \leftarrow   \nabla_{\theta} f_t (\theta_{t-1})           \\
+            &\hspace{5mm}if \: \lambda \neq 0                                                    \\
+            &\hspace{10mm} g_t \leftarrow g_t + \lambda  \theta_{t-1}                            \\
+            &\hspace{5mm} v_t      \leftarrow v_{t-1} \rho + g^2_t (1 - \rho)                    \\
+            &\hspace{5mm}\Delta x_t    \leftarrow   \frac{\sqrt{u_{t-1} +
+                \epsilon }}{ \sqrt{v_t + \epsilon}  }g_t \hspace{21mm}                           \\
+            &\hspace{5mm} u_t  \leftarrow   u_{t-1}  \rho +
+                 \Delta x^2_t  (1 - \rho)                                                        \\
+            &\hspace{5mm}\theta_t      \leftarrow   \theta_{t-1} - \gamma  \Delta x_t            \\
+            &\rule{110mm}{0.4pt}                                                          \\[-1.ex]
+            &\bf{return} \:  \theta_t                                                     \\[-1.ex]
+            &\rule{110mm}{0.4pt}                                                          \\[-1.ex]
+       \end{aligned}
+\\
+\\
+\\
+Essentially, this algorithm restricts the accumulation of the sum of the past gradients to a fixed size of w, storing the gradients as an exponentially decaying average \cite{Zeiler}. It also makes use of the Hessian matrix, or an approximation of it, which is formed of the second partial derivatives of a scalar valued function, to make updates to the parameters.
+\\
+\\
+\subsection{Oversampling}
+Our Neural Network struggled severely with performance, due to the imbalance of size in the respective classes (habitable, uninhabitable). Thus, we chose to employ the technique of oversampling, which entails adding values from the minority dataset with replacement into the training data to ensure that the network meets with sufficient examples to make accurate classifications.  \cite{Mohammed} 
 
 \section{Experimental Results}
-Describe the datasets used for your experiments. Be precise in describing all information about the datasets, including, classes, number of samples per class, features used to represent data, and all pre/post processing of the datasets.\\
-Describe the details about the implementation of each algorithm, e.g., how you perform training, validation, testing, values of the hyperparameters and your methods for hyperparameter tuning, training/validation/testing error on the dataset, and all useful plots/tables that help to better interpret your results and your work.
 
 \subsection{PCA}
 If we reduce the dimensionality of the data to 2D and plot it, generally what we can see is that the data mainly looks like a skewed Gamma distribution along one component, with a smaller trends off of this main cluster along the other component.
@@ -55,7 +108,8 @@ The approach we took to dealing with missing values uses many iterations of regr
 \subsection{SVC}
 The best accuracy that we were able to acheive with the SVM was ~20\%, specifically for the set of planets that we obtained from the PHL at the University of Puerto Rico, which make up our positive class. Not the best, however, the range of planets that it is labelling as habitable is getting closer to the actual thing. and we are of course still labelling the overall distribution with about 98\% accuracy.
 
-
+\subsection{Neural Network}
+Unfortunately, our Neural Network met with extremely limited success. The primary issue lay with our inability deal with the imbalanced classification. When using the cross-entropy loss optimizer, with our weights, the classification of our test sample remained stagnant. We achieved an accuracy of 63 percent for both layer formations. Our training data achieved an accuracy of 72 and 76 percent respectively. However, we did see marginal improvement upon changing the optimizer from Adam to the ADADELTA. Our training data achieved an accuracy of 83 percent, while our test sample accuracy remained stagnant. The primary the network appeared to be defaulting in its classifications, casting the value of 0 across all samples in the test data. The obvious cause was the sheer imbalance in the data, which was the result of the lack of classified "habitable" planets. As such, we attempted to amend the problem by using oversampling, adding planets with replacement from the habitable class at random into our data sets. We did this in batches of 1000, 2000, and even 5000. However, this failed to affect the performance of the network in a statistically significant manner, resulting in percentage changes within 0.1 percent of one another. There were obvious limitations to the structure of our model, particularly in the manner in which the Cross-entropy loss processed its correct, positive classifications.  
 
 \section{Participants Contribution}
 Please list the name of the participants. For each participant explain in details the role he/she played in the project: explain which methods was implemented by which member, which dataset was processed by which member, which experimental results were generated by which members, etc.
@@ -65,4 +119,15 @@ Please list the name of the participants. For each participant explain in detail
 
 ** Please note that your submission must be at most 7 pages long, excluding references.
 
+\newpage
+\begin{thebibliography}{9}
+\bibitem{Zeiler} Matthew D. Zeiler, \textit{ADADELTA: AN ADAPTIVE LEARNING RATE METHOD}, (Google Inc, New York University, 2012). https://arxiv.org/pdf/1212.5701.pdf
+\bibitem{Schulze-Makuch} Dirk Schulze-Makuch, René Heller, and Edward Guinan \textit{In Search for a Planet Better than Earth: Top Contenders for a Superhabitable World}, ( German AeroSpace Agency, 2019). 
+\bibitem{Danchi1} William C. Danchi1 and Bruno Lopez \textit{EFFECT OF METALLICITY ON THE EVOLUTION OF THE HABITABLE ZONE FROM THE PRE-MAIN
+SEQUENCE TO THE ASYMPTOTIC GIANT BRANCH AND THE SEARCH FOR LIFE}, ( Exoplanets and Stellar Astrophysics Laboratory, NASA Goddard Space Flight Center, 2012)
+\bibitem{Mohammed} Roweida Mohammed, Jumanah Rawashdeh and Malak Abdullah \textit{Machine Learning with Oversampling and
+Undersampling Techniques: Overview Study and
+Experimental Results}, ( Exoplanets and Stellar Astrophysics Laboratory, NASA Goddard Space Flight Center, 2012)
+\end{thebibliography}
+\\
 \end{document}
